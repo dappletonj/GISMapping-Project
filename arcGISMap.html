@@ -1,0 +1,102 @@
+<html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+      <title>ArcGIS API for JavaScript Tutorials: Add a point, line, and polygon</title>
+      <link rel="stylesheet" href="styles.css">
+      <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css"> 
+      <script type="text/javascript" src="capitals.json"></script>
+      <script src="https://js.arcgis.com/4.21/"></script>
+      <script> 
+
+      require([
+        "esri/config",
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/Search",
+        "esri/Graphic",
+        "esri/layers/GraphicsLayer",
+        "esri/symbols/PictureMarkerSymbol"
+    
+        ], function(esriConfig, Map, MapView, Search, Graphic, GraphicsLayer, PictureMarkerSymbol) {
+    
+      esriConfig.apiKey = "AAPK253f5143376d4ef9808d99977dc01332BIm9dwMg2d5jhxljfxF3cbQG2BSFfuHrcOaZPqXKGEslfGC9VVUrzJY18y556U4J";
+
+      const map = new Map({
+        basemap: "arcgis-topographic" //Basemap layer service
+      });
+    
+      const view = new MapView({
+        map: map,
+        center: [-118.80500,34.02700], //Longitude, latitude
+        zoom: 2,
+        container: "viewDiv"
+     });
+    
+     // Creating a grpahics layer object.
+     const graphicsLayer = new GraphicsLayer();
+     map.add(graphicsLayer);
+
+     var xmlhttpJSON = new XMLHttpRequest();
+     xmlhttpJSON.onload = function() {
+       console.log(this.responseText)
+       var data = JSON.parse(this.responseText);
+      
+       var index = 0;
+
+       myfunction = function() {
+          data[index]
+          let point = { //Create a point
+          type: "point",
+          longitude:  data[index].CapitalLongitude,
+          latitude: data[index].CapitalLatitude
+         };
+
+         const simpleMarkerSymbol = {
+          type: "simple-marker",
+          color: [65, 105, 225],  // Blue
+          style: "cross",
+          outline: {
+            color: [255, 0, 0], // White
+            width: 1.5
+          }
+         };
+
+         const pointGraphic = new Graphic({
+          geometry: point,
+          symbol: simpleMarkerSymbol
+        });
+
+        graphicsLayer.add(pointGraphic);
+        
+        index += 1;
+
+        if (index < data.length) {
+         setTimeout(myfunction, 500)
+        }
+       }
+
+       setTimeout(myfunction, 500)
+
+      };
+      xmlhttpJSON.open("GET", "capitals.json");
+      xmlhttpJSON.send();
+
+      const searchWidget = new Search({
+        view: view
+      });
+      // Adds the search widget below other elements in
+      // the top left corner of the view
+      view.ui.add(searchWidget, {
+        position: "top-right",
+        index: 2
+      });
+
+     });
+    </script>
+    </head>
+    <body>
+      <div id="viewDiv"></div>
+    </body>
+    </html>
